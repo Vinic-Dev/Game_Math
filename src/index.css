@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-dungeon {
+  background-color: #0b0c10;
+  background-image:
+    linear-gradient(30deg, #15161a 12%, transparent 12.5%, transparent 87%, #15161a 87.5%, #15161a),
+    linear-gradient(150deg, #15161a 12%, transparent 12.5%, transparent 87%, #15161a 87.5%, #15161a),
+    linear-gradient(30deg, #15161a 12%, transparent 12.5%, transparent 87%, #15161a 87.5%, #15161a),
+    linear-gradient(150deg, #15161a 12%, transparent 12.5%, transparent 87%, #15161a 87.5%, #15161a),
+    linear-gradient(60deg, #1a1c23 25%, transparent 25.5%, transparent 75%, #1a1c23 75%, #1a1c23),
+    linear-gradient(60deg, #1a1c23 25%, transparent 25.5%, transparent 75%, #1a1c23 75%, #1a1c23);
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.torch-glow {
+  box-shadow: 0 0 15px rgba(255, 140, 0, 0.6), 0 0 30px rgba(255, 69, 0, 0.4);
+}
