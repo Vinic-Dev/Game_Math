@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GameConfig, GameProps } from '../core/GameContract';
-import { generateMathProblem, MathProblem } from './MathEngine';
+import { generateMathProblem, MathProblem, MathDistribution } from './MathEngine';
 
 // Assets - Backgrounds
 import bg1 from '../modulos/assets/bg1.png';
@@ -27,13 +27,66 @@ export const config: GameConfig = {
     attachToModuleId: 'm1'
 };
 
-const LEVELS = [
-    { bg: bg1, monsterImg: nv1, name: 'Zumbi Fraco' },
-    { bg: bg2, monsterImg: nv2, name: 'Esqueleto' },
-    { bg: bg3, monsterImg: nv3, name: 'Orc' },
-    { bg: bg4, monsterImg: nv4, name: 'Múmia' },
-    { bg: bg5, monsterImg: nv5, name: 'Guerreiro Sombrio' },
-    { bg: bg6, monsterImg: nv6, name: 'Rei dos Monstros' },
+/*
+Nível 1: Zumbi | 2-5 x 2-10 | 
+Nível 2: Esqueleto | 2-6 x 2-10 |
+Nível 3: Assombração | 4-5 x 5-10 | 
+Nível 4: Bruxa | 6-7 x 5-10 | 
+Nível 5: Trasgo | 6-8 x 5-9 | 
+Nível 6: Diabólico | 8-9 x 5-9 |
+*/
+
+interface LevelConfig {
+    bg: string;
+    monsterImg: string;
+    name: string;
+    hitsToKill: number;
+    math: MathDistribution;
+}
+
+const LEVELS: LevelConfig[] = [
+    {
+        bg: bg1,
+        monsterImg: nv1,
+        name: 'Zumbi',
+        hitsToKill: 5,
+        math: { minN1: 2, maxN1: 5, minN2: 2, maxN2: 10 }
+    },
+    {
+        bg: bg2,
+        monsterImg: nv2,
+        name: 'Esqueleto',
+        hitsToKill: 7,
+        math: { minN1: 2, maxN1: 6, minN2: 2, maxN2: 10 }
+    },
+    {
+        bg: bg3,
+        monsterImg: nv3,
+        name: 'Assombração',
+        hitsToKill: 8,
+        math: { minN1: 4, maxN1: 5, minN2: 5, maxN2: 10 }
+    },
+    {
+        bg: bg4,
+        monsterImg: nv4,
+        name: 'Bruxa',
+        hitsToKill: 8,
+        math: { minN1: 6, maxN1: 7, minN2: 5, maxN2: 10 }
+    },
+    {
+        bg: bg5,
+        monsterImg: nv5,
+        name: 'Trasgo',
+        hitsToKill: 9,
+        math: { minN1: 6, maxN1: 8, minN2: 5, maxN2: 9 }
+    },
+    {
+        bg: bg6,
+        monsterImg: nv6,
+        name: 'Diabólico',
+        hitsToKill: 10,
+        math: { minN1: 8, maxN1: 9, minN2: 5, maxN2: 9 }
+    },
 ];
 
 const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
@@ -61,29 +114,30 @@ const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
     };
 
     const nextTurn = () => {
-        setProblem(generateMathProblem(difficultyLevel + levelIndex)); // Increase difficulty slightly per level
+        setProblem(generateMathProblem(LEVELS[levelIndex].math));
         setMessage(`Nível ${levelIndex + 1}: ${LEVELS[levelIndex].name}`);
     };
 
     const handleAnswer = (selected: number) => {
-        if (!problem || isLevelTransitioning) return;
+        if (!problem || isLevelTransitioning || playerAttackAnim || enemyAttackAnim) return;
 
         if (selected === problem.answer) {
             setMessage('ACERTO CRÍTICO!');
             setPlayerAttackAnim(true);
-            const damage = 34; // 3 hits to kill
+            // Calculate damage dynamically based on hits to kill (100 HP / hits)
+            const damage = 100 / LEVELS[levelIndex].hitsToKill;
 
             // Recoil
             setTimeout(() => setEnemyHitAnim(true), 300);
 
             setTimeout(() => {
-                const newEnemyHP = enemyHP - damage;
+                // Calculate new HP based on current state (safe due to input blocking)
+                const newHP = Math.max(0, enemyHP - damage);
+                setEnemyHP(newHP);
 
-                if (newEnemyHP <= 0) {
-                    setEnemyHP(0);
+                if (newHP <= 0.1) {
                     handleVictory();
                 } else {
-                    setEnemyHP(newEnemyHP);
                     setPlayerAttackAnim(false);
                     setEnemyHitAnim(false);
                     nextTurn();
@@ -97,17 +151,16 @@ const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
             const damage = 20;
 
             setTimeout(() => {
-                setPlayerHP(prev => {
-                    const newHP = prev - damage;
-                    if (newHP <= 0) {
-                        setTimeout(() => onExit(false), 1500);
-                        return 0;
-                    }
-                    return newHP;
-                });
-                setShake(false);
-                setEnemyAttackAnim(false);
-                nextTurn();
+                const newHP = Math.max(0, playerHP - damage);
+                setPlayerHP(newHP);
+
+                if (newHP <= 0) {
+                    setTimeout(() => onExit(false), 1500);
+                } else {
+                    setShake(false);
+                    setEnemyAttackAnim(false);
+                    nextTurn();
+                }
             }, 800);
         }
     };
@@ -179,28 +232,32 @@ const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-20">
                     <div className="flex items-end justify-center gap-12 sm:gap-24 w-full max-w-2xl px-4">
                         {/* Player */}
-                        <img
-                            src={playerImage}
-                            alt="Player"
-                            className={`
-                                w-48 h-48 sm:w-64 sm:h-64 pixelated transition-all duration-500 ease-in-out
-                                ${playerAttackAnim ? 'translate-x-32 sm:translate-x-48 scale-110' : ''}
-                                ${isLevelTransitioning ? 'translate-x-[200%] opacity-0' : 'translate-x-0 opacity-100'}
-                            `}
-                        />
+                        <div className="animate-breathe origin-bottom">
+                            <img
+                                src={playerImage}
+                                alt="Player"
+                                className={`
+                                    w-48 h-48 sm:w-64 sm:h-64 pixelated transition-all duration-500 ease-in-out
+                                    ${playerAttackAnim ? 'translate-x-32 sm:translate-x-48 scale-110' : ''}
+                                    ${isLevelTransitioning ? 'translate-x-[200%] opacity-0' : 'translate-x-0 opacity-100'}
+                                `}
+                            />
+                        </div>
 
                         {/* Enemy */}
-                        <img
-                            src={currentLevelConfig.monsterImg}
-                            alt="Enemy"
-                            className={`
-                                w-56 h-56 sm:w-72 sm:h-72 pixelated transition-all duration-200
-                                ${shake ? '-translate-x-2' : ''}
-                                ${enemyHitAnim ? 'translate-x-8 opacity-80 brightness-150 rotate-6' : ''}
-                                ${enemyAttackAnim ? '-translate-x-32 sm:-translate-x-48 scale-110' : ''}
-                                ${enemyHP <= 0 ? 'opacity-0 scale-90 blur-sm' : ''}
-                            `}
-                        />
+                        <div className="animate-breathe origin-bottom" style={{ animationDelay: '1.5s' }}>
+                            <img
+                                src={currentLevelConfig.monsterImg}
+                                alt="Enemy"
+                                className={`
+                                    w-56 h-56 sm:w-72 sm:h-72 pixelated transition-all duration-200
+                                    ${shake ? '-translate-x-2' : ''}
+                                    ${enemyHitAnim ? 'translate-x-8 opacity-80 brightness-150 rotate-6' : ''}
+                                    ${enemyAttackAnim ? '-translate-x-32 sm:-translate-x-48 scale-110' : ''}
+                                    ${enemyHP <= 0 ? 'opacity-0 scale-90 blur-sm' : ''}
+                                `}
+                            />
+                        </div>
                     </div>
                 </div>
 

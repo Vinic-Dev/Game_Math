@@ -6,20 +6,18 @@ export interface MathProblem {
     options: number[];
 }
 
-export const generateMathProblem = (level: number): MathProblem => {
-    const difficultyMultiplier = Math.ceil(level / 2);
-    const operation: Operation = '*';
+export interface MathDistribution {
+    minN1: number;
+    maxN1: number;
+    minN2: number;
+    maxN2: number;
+}
 
-    let n1 = 0, n2 = 0;
-    let answer = 0;
+export const generateMathProblem = (dist: MathDistribution): MathProblem => {
+    const n1 = Math.floor(Math.random() * (dist.maxN1 - dist.minN1 + 1)) + dist.minN1;
+    const n2 = Math.floor(Math.random() * (dist.maxN2 - dist.minN2 + 1)) + dist.minN2;
 
-    // Progressão de dificuldade:
-    // níveis baixos → tabuadas simples
-    // níveis altos → números maiores
-    n1 = Math.floor(Math.random() * (5 * difficultyMultiplier)) + 1;
-    n2 = Math.floor(Math.random() * (5 * difficultyMultiplier)) + 1;
-
-    answer = n1 * n2;
+    const answer = n1 * n2;
 
     const options = new Set<number>();
     options.add(answer);
