@@ -206,7 +206,7 @@ const MathDungeon = ({ onExit }: GameProps) => {
                                 className="h-full bg-green-500 transition-all duration-500"
                                 style={{ width: `${playerHP}%` }}
                             ></div>
-                            <span className="absolute inset-0 flex items-center justify-center text-sm shadow-sm font-bold">{playerHP}/100</span>
+                            <span className="absolute inset-0 flex items-center justify-center text-sm shadow-sm font-bold">{Math.round(playerHP)}/100</span>
                         </div>
                     </div>
 
@@ -223,7 +223,7 @@ const MathDungeon = ({ onExit }: GameProps) => {
                                 className="h-full bg-red-600 transition-all duration-500"
                                 style={{ width: `${enemyHP}%` }}
                             ></div>
-                            <span className="absolute inset-0 flex items-center justify-center text-sm shadow-sm font-bold">{enemyHP}/100</span>
+                            <span className="absolute inset-0 flex items-center justify-center text-sm shadow-sm font-bold">{Math.round(enemyHP)}/100</span>
                         </div>
                     </div>
                 </div>

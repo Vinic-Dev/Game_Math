@@ -41,8 +41,8 @@ export const ModuleSection: React.FC<ModuleSectionProps> = ({
 
             {/* Lock Overlay for Whole Module */}
             {isLocked && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center">
-                    <div className="bg-zinc-950/80 p-8 rounded-full border-4 border-zinc-800 shadow-2xl backdrop-blur-sm">
+                <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                    <div className="bg-zinc-950/80 p-8 rounded-full border-4 border-zinc-800 shadow-2xl backdrop-blur-sm pointer-events-auto">
                         <Lock size={56} className="text-zinc-500" />
                     </div>
                 </div>

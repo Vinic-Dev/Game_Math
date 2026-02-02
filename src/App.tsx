@@ -53,7 +53,7 @@ function App() {
     const ActiveGameComponent = activeModule ? getGameForModule(activeModule.id) : null;
 
     return (
-        <div className="min-h-screen bg-[#050505] text-zinc-100 font-mono flex flex-col overflow-hidden">
+        <div className="h-screen bg-[#050505] text-zinc-100 font-mono flex flex-col">
 
             {/* Game Mode Overlay - Renders when playing */}
             {isPlaying && ActiveGameComponent && activeGameSkillId && (
