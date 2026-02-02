@@ -132,7 +132,7 @@ const MathDungeon = ({ onExit }: GameProps) => {
 
             setTimeout(() => {
                 // Calculate new HP based on current state (safe due to input blocking)
-                const newHP = Math.max(0, enemyHP - damage);
+                const newHP = Math.round(Math.max(0, enemyHP - damage));
                 setEnemyHP(newHP);
 
                 if (newHP <= 0.1) {
@@ -151,7 +151,7 @@ const MathDungeon = ({ onExit }: GameProps) => {
             const damage = 20;
 
             setTimeout(() => {
-                const newHP = Math.max(0, playerHP - damage);
+                const newHP = Math.round(Math.max(0, playerHP - damage));
                 setPlayerHP(newHP);
 
                 if (newHP <= 0) {
@@ -188,10 +188,10 @@ const MathDungeon = ({ onExit }: GameProps) => {
     return (
         <div className={`fixed inset-0 z-[60] bg-black flex items-center justify-center font-pixel`}>
 
-            <div className="relative w-full h-full md:max-w-4xl md:aspect-[4/3] md:h-auto bg-zinc-900 border-4 border-zinc-500 shadow-2xl overflow-hidden">
+            <div className="relative w-full h-full md:max-w-4xl md:aspect-[4/3] md:h-auto bg-zinc-900 border-4 border-zinc-500 shadow-2xl">
 
                 <div
-                    className={`absolute inset-0 bg-cover bg-center pixelated transition-all duration-1000 ${isLevelTransitioning ? 'opacity-0' : 'opacity-100'}`}
+                    className={`absolute inset-0 bg-cover bg-center pixelated transition-all duration-1000 overflow-hidden ${isLevelTransitioning ? 'opacity-0' : 'opacity-100'}`}
                     style={{ backgroundImage: `url(${currentLevelConfig.bg})` }}
                 ></div>
 
@@ -229,7 +229,7 @@ const MathDungeon = ({ onExit }: GameProps) => {
                 </div>
 
                 {/* Game Area */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-8 md:pb-16">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-[40%] md:pb-16">
                     <div className="flex items-end justify-center gap-12 w-full max-w-2xl px-4">
                         {/* Player */}
                         <div className="animate-breathe origin-bottom">
