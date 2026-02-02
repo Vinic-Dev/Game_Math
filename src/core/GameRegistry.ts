@@ -1,15 +1,18 @@
 import { GameConfig, GameModule, GameProps } from './GameContract';
 
-// Auto-import all .tsx files in the minigames directory
-// @ts-ignore
-const gameModules = import.meta.glob('../minigames/*.tsx', { eager: true });
+// Explicit imports to prevent tree-shaking
+import * as MathDungeon from '../minigames/MathDungeon';
+
+// Collect all game modules
+const gameModules: GameModule[] = [
+    MathDungeon as GameModule,
+];
 
 // Map<ModuleId, GameModule>
 const gamesByModule = new Map<string, GameModule>();
 
-// Parse the modules
-for (const path in gameModules) {
-    const mod = gameModules[path] as GameModule;
+// Register the modules
+for (const mod of gameModules) {
     if (mod && mod.config && mod.config.attachToModuleId) {
         console.log(`[GameRegistry] Registered '${mod.config.name}' for module '${mod.config.attachToModuleId}'`);
         gamesByModule.set(mod.config.attachToModuleId, mod);

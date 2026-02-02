@@ -75,3 +75,52 @@
 .animate-breathe {
   animation: breathing 3s ease-in-out infinite;
 }
+
+/* Mobile Touch Optimizations */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth Scrolling for Touch Devices */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Mobile-Friendly Text Sizing */
+@media (max-width: 640px) {
+  html {
+    font-size: 16px;
+    /* Ensure minimum readable font size */
+  }
+}
+
+/* Tap Area Helper */
+.tap-area {
+  position: relative;
+}
+
+.tap-area::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

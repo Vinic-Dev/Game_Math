@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { GameConfig, GameProps } from '../core/GameContract';
 import { generateMathProblem, MathProblem, MathDistribution } from './MathEngine';
 
@@ -50,28 +50,28 @@ const LEVELS: LevelConfig[] = [
         monsterImg: nv1,
         name: 'Zumbi',
         hitsToKill: 5,
-        math: { minN1: 2, maxN1: 5, minN2: 2, maxN2: 10 }
+        math: { minN1: 2, maxN1: 5, minN2: 2, maxN2: 6 }
     },
     {
         bg: bg2,
         monsterImg: nv2,
         name: 'Esqueleto',
         hitsToKill: 7,
-        math: { minN1: 2, maxN1: 6, minN2: 2, maxN2: 10 }
+        math: { minN1: 2, maxN1: 6, minN2: 2, maxN2: 6 }
     },
     {
         bg: bg3,
         monsterImg: nv3,
         name: 'Assombração',
         hitsToKill: 8,
-        math: { minN1: 4, maxN1: 5, minN2: 5, maxN2: 10 }
+        math: { minN1: 4, maxN1: 5, minN2: 5, maxN2: 6 }
     },
     {
         bg: bg4,
         monsterImg: nv4,
         name: 'Bruxa',
         hitsToKill: 8,
-        math: { minN1: 6, maxN1: 7, minN2: 5, maxN2: 10 }
+        math: { minN1: 6, maxN1: 7, minN2: 5, maxN2: 8 }
     },
     {
         bg: bg5,
@@ -89,7 +89,7 @@ const LEVELS: LevelConfig[] = [
     },
 ];
 
-const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
+const MathDungeon = ({ onExit }: GameProps) => {
     const [levelIndex, setLevelIndex] = useState(0);
     const [playerHP, setPlayerHP] = useState(100);
     const [enemyHP, setEnemyHP] = useState(100);
@@ -188,7 +188,7 @@ const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
     return (
         <div className={`fixed inset-0 z-[60] bg-black flex items-center justify-center font-pixel`}>
 
-            <div className="relative w-full max-w-4xl aspect-[4/3] bg-zinc-900 border-4 border-zinc-500 shadow-2xl overflow-hidden rounded-xl">
+            <div className="relative w-full h-full md:max-w-4xl md:aspect-[4/3] md:h-auto bg-zinc-900 border-4 border-zinc-500 shadow-2xl overflow-hidden">
 
                 <div
                     className={`absolute inset-0 bg-cover bg-center pixelated transition-all duration-1000 ${isLevelTransitioning ? 'opacity-0' : 'opacity-100'}`}
@@ -196,49 +196,49 @@ const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
                 ></div>
 
                 {/* HUD */}
-                <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-10 text-white shadow-gradient">
-                    <div className="flex flex-col gap-2 w-1/3">
-                        <div className="flex items-center gap-2">
-                            <span className="text-yellow-400 text-xs">MAGO (Nvl {levelIndex + 1})</span>
+                <div className="absolute top-0 left-0 right-0 p-4 md:p-6 md:pt-8 flex justify-between items-start z-10 text-white shadow-gradient">
+                    <div className="flex flex-col gap-2 w-[40%]">
+                        <div className="flex items-center gap-1">
+                            <span className="text-yellow-400 text-sm font-bold">MAGO (Nvl {levelIndex + 1})</span>
                         </div>
-                        <div className="h-6 bg-zinc-800 border-2 border-white relative">
+                        <div className="h-8 bg-zinc-800 border-2 border-white relative">
                             <div
                                 className="h-full bg-green-500 transition-all duration-500"
                                 style={{ width: `${playerHP}%` }}
                             ></div>
-                            <span className="absolute inset-0 flex items-center justify-center text-[10px] shadow-sm">{playerHP}/100</span>
+                            <span className="absolute inset-0 flex items-center justify-center text-sm shadow-sm font-bold">{playerHP}/100</span>
                         </div>
                     </div>
 
                     <div className="mt-2 bg-zinc-800 px-3 py-1 border-2 border-white rotate-3">
-                        <span className="text-xs font-bold text-yellow-500">VS</span>
+                        <span className="text-sm font-bold text-yellow-500">VS</span>
                     </div>
 
-                    <div className="flex flex-col gap-2 w-1/3 items-end">
-                        <div className="flex items-center gap-2">
-                            <span className="text-red-400 text-xs">{currentLevelConfig.name}</span>
+                    <div className="flex flex-col gap-2 w-[40%] items-end">
+                        <div className="flex items-center gap-1">
+                            <span className="text-red-400 text-sm font-bold">{currentLevelConfig.name}</span>
                         </div>
-                        <div className="h-6 bg-zinc-800 border-2 border-white relative w-full">
+                        <div className="h-8 bg-zinc-800 border-2 border-white relative w-full">
                             <div
                                 className="h-full bg-red-600 transition-all duration-500"
                                 style={{ width: `${enemyHP}%` }}
                             ></div>
-                            <span className="absolute inset-0 flex items-center justify-center text-[10px] shadow-sm">{enemyHP}/100</span>
+                            <span className="absolute inset-0 flex items-center justify-center text-sm shadow-sm font-bold">{enemyHP}/100</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Game Area */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-20">
-                    <div className="flex items-end justify-center gap-12 sm:gap-24 w-full max-w-2xl px-4">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-8 md:pb-16">
+                    <div className="flex items-end justify-center gap-12 w-full max-w-2xl px-4">
                         {/* Player */}
                         <div className="animate-breathe origin-bottom">
                             <img
                                 src={playerImage}
                                 alt="Player"
                                 className={`
-                                    w-48 h-48 sm:w-64 sm:h-64 pixelated transition-all duration-500 ease-in-out
-                                    ${playerAttackAnim ? 'translate-x-32 sm:translate-x-48 scale-110' : ''}
+                                    w-64 h-64 md:w-48 md:h-48 pixelated transition-all duration-500 ease-in-out
+                                    ${playerAttackAnim ? 'translate-x-32 md:translate-x-24 scale-110' : ''}
                                     ${isLevelTransitioning ? 'translate-x-[200%] opacity-0' : 'translate-x-0 opacity-100'}
                                 `}
                             />
@@ -250,10 +250,10 @@ const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
                                 src={currentLevelConfig.monsterImg}
                                 alt="Enemy"
                                 className={`
-                                    w-56 h-56 sm:w-72 sm:h-72 pixelated transition-all duration-200
+                                    w-72 h-72 md:w-56 md:h-56 pixelated transition-all duration-200
                                     ${shake ? '-translate-x-2' : ''}
-                                    ${enemyHitAnim ? 'translate-x-8 opacity-80 brightness-150 rotate-6' : ''}
-                                    ${enemyAttackAnim ? '-translate-x-32 sm:-translate-x-48 scale-110' : ''}
+                                    ${enemyHitAnim ? 'translate-x-8 md:translate-x-6 opacity-80 brightness-150 rotate-6' : ''}
+                                    ${enemyAttackAnim ? '-translate-x-32 md:-translate-x-24 scale-110' : ''}
                                     ${enemyHP <= 0 ? 'opacity-0 scale-90 blur-sm' : ''}
                                 `}
                             />
@@ -262,19 +262,19 @@ const MathDungeon: React.FC<GameProps> = ({ onExit, difficultyLevel }) => {
                 </div>
 
                 {/* Interface Logic */}
-                <div className={`absolute bottom-0 left-0 right-0 h-1/3 bg-zinc-950 border-t-4 border-zinc-600 p-6 flex flex-col items-center justify-center z-20 transition-transform duration-500 ${isLevelTransitioning ? 'translate-y-full' : 'translate-y-0'}`}>
+                <div className={`absolute bottom-0 left-0 right-0 h-[38%] bg-zinc-950 border-t-4 border-zinc-600 p-4 md:p-6 flex flex-col items-center justify-center z-20 transition-transform duration-500 ${isLevelTransitioning ? 'translate-y-full' : 'translate-y-0'}`}>
 
                     <div className="mb-4 text-center">
-                        <p className="text-zinc-400 text-xs mb-2 uppercase tracking-widest">{message}</p>
-                        <h2 className="text-3xl text-white drop-shadow-md">{problem?.question}</h2>
+                        <p className="text-zinc-400 text-sm mb-2 uppercase tracking-widest font-bold">{message}</p>
+                        <h2 className="text-3xl md:text-2xl text-white drop-shadow-md font-bold">{problem?.question}</h2>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full px-8">
+                    <div className="grid grid-cols-2 gap-3 w-full px-4 md:px-8">
                         {problem?.options.map((option, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => handleAnswer(option)}
-                                className="bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 border-2 border-zinc-600 text-white py-4 rounded shadow-[0_4px_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all text-lg"
+                                className="bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 border-2 border-zinc-600 text-white py-4 md:py-3 rounded shadow-[0_4px_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all text-xl md:text-lg font-bold min-h-[56px] md:min-h-[48px]"
                             >
                                 {option}
                             </button>
