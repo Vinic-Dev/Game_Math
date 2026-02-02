@@ -5,33 +5,63 @@ import { ModuleSection } from './components/ModuleSection';
 import { SKILLS_DATA, Skill } from './data/skills';
 import { TopBar } from './components/TopBar';
 import { SkillModal } from './components/SkillModal';
+import { getGameForModule } from './core/GameRegistry';
 
 function App() {
     const [selectedSkill, setSelectedSkill] = useState<(Skill & { moduleId: string }) | null>(null);
     const [unlockedSkills, setUnlockedSkills] = useState(['01']);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [activeGameSkillId, setActiveGameSkillId] = useState<string | null>(null);
 
     // Flatten all skills to find the next one easily
     const allSkills = SKILLS_DATA.flatMap(m => m.skills);
+    const totalSkills = allSkills.length;
 
-    const completeSkill = (currentId: string) => {
-        const currentIndex = allSkills.findIndex(s => s.id === currentId);
-        if (currentIndex >= 0 && currentIndex < allSkills.length - 1) {
-            const nextSkill = allSkills[currentIndex + 1];
-            if (!unlockedSkills.includes(nextSkill.id)) {
-                setUnlockedSkills(prev => [...prev, nextSkill.id]);
-            }
+    const handleGameStart = () => {
+        if (selectedSkill) {
+            setActiveGameSkillId(selectedSkill.id);
+            setIsPlaying(true);
+            setSelectedSkill(null); // Close modal
         }
     };
 
-    const totalSkills = allSkills.length;
+    const handleGameEnd = (won: boolean) => {
+        setIsPlaying(false);
+        if (won && activeGameSkillId) {
+            const currentIndex = allSkills.findIndex(s => s.id === activeGameSkillId);
+            if (currentIndex >= 0 && currentIndex < allSkills.length - 1) {
+                const nextSkill = allSkills[currentIndex + 1];
+                if (!unlockedSkills.includes(nextSkill.id)) {
+                    setUnlockedSkills(prev => [...prev, nextSkill.id]);
+                }
+            }
+        }
+        setActiveGameSkillId(null);
+    };
 
-    // Determine modal color based on selected skill
     const selectedModuleColor = selectedSkill
         ? SKILLS_DATA.find(m => m.id === selectedSkill.moduleId)?.color || 'slate'
         : 'slate';
 
+    // Resolve Game Component
+    // Find which module activeGameSkillId belongs to
+    const activeModule = activeGameSkillId
+        ? SKILLS_DATA.find(m => m.skills.some(s => s.id === activeGameSkillId))
+        : null;
+
+    // Inversion of Control: We ask the registry "Who wants to play with this module?"
+    const ActiveGameComponent = activeModule ? getGameForModule(activeModule.id) : null;
+
     return (
         <div className="min-h-screen bg-[#050505] text-zinc-100 font-mono flex flex-col overflow-hidden">
+
+            {/* Game Mode Overlay - Renders when playing */}
+            {isPlaying && ActiveGameComponent && activeGameSkillId && (
+                <ActiveGameComponent
+                    difficultyLevel={allSkills.findIndex(s => s.id === activeGameSkillId) + 1}
+                    onExit={handleGameEnd}
+                />
+            )}
 
             <TopBar unlockedCount={unlockedSkills.length} totalSkills={totalSkills} />
 
@@ -42,7 +72,6 @@ function App() {
                 <div className="absolute top-0 bottom-0 w-2.5 bg-zinc-800/60 left-[50%] -translate-x-1/2 -z-0 border-x border-zinc-950/50"></div>
 
                 {SKILLS_DATA.map((module, index) => {
-                    // LOCK LOGIC: All modules except the first one (index 0) are visually locked
                     const isModuleLocked = index > 0;
 
                     return (
@@ -70,13 +99,13 @@ function App() {
             </main>
 
             {/* Skill Modal */}
-            {selectedSkill && (
+            {selectedSkill && !isPlaying && (
                 <SkillModal
                     skill={selectedSkill}
                     moduleColor={selectedModuleColor}
-                    isUnlocked={true} // Modal only opens for unlocked skills now
+                    isUnlocked={true}
                     onClose={() => setSelectedSkill(null)}
-                    onAction={() => completeSkill(selectedSkill.id)}
+                    onAction={handleGameStart}
                 />
             )}
         </div>
