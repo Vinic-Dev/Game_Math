@@ -89,7 +89,7 @@ const LEVELS: LevelConfig[] = [
     },
 ];
 
-const MathDungeon = ({ onExit }: GameProps) => {
+const MathDungeon = ({ onExit, debugMode = false }: GameProps) => {
     const [levelIndex, setLevelIndex] = useState(0);
     const [playerHP, setPlayerHP] = useState(100);
     const [enemyHP, setEnemyHP] = useState(100);
@@ -106,6 +106,21 @@ const MathDungeon = ({ onExit }: GameProps) => {
     useEffect(() => {
         startLevel();
     }, [levelIndex]);
+
+    // Debug Mode: Press 'N' to skip to next level
+    useEffect(() => {
+        if (!debugMode) return;
+
+        const handleKeyPress = (e: KeyboardEvent) => {
+            if (e.key.toLowerCase() === 'n' && !isLevelTransitioning) {
+                console.log('[DEBUG] Skipping to next level...');
+                handleVictory();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [debugMode, isLevelTransitioning, levelIndex]);
 
     const startLevel = () => {
         setEnemyHP(100);
@@ -227,6 +242,13 @@ const MathDungeon = ({ onExit }: GameProps) => {
                         </div>
                     </div>
                 </div>
+
+                {/* Debug Mode Indicator */}
+                {debugMode && (
+                    <div className="absolute top-4 left-4 z-20 bg-yellow-500/90 text-black px-3 py-1 rounded-lg border-2 border-yellow-600 font-bold text-xs shadow-lg">
+                        DEBUG MODE - Pressione 'N' para avançar
+                    </div>
+                )}
 
                 {/* Game Area */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-[40%] md:pb-16">

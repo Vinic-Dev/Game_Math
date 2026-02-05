@@ -1,17 +1,24 @@
 import { useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { Trophy, Settings } from 'lucide-react';
 
 import { ModuleSection } from './components/ModuleSection';
 import { SKILLS_DATA, Skill } from './data/skills';
 import { TopBar } from './components/TopBar';
 import { SkillModal } from './components/SkillModal';
-import { getGameForModule } from './core/GameRegistry';
+import { SettingsModal } from './components/SettingsModal';
+import { getGameForSkill } from './core/GameRegistry';
 
 function App() {
     const [selectedSkill, setSelectedSkill] = useState<(Skill & { moduleId: string }) | null>(null);
-    const [unlockedSkills, setUnlockedSkills] = useState(['01']);
+    // Initialize with only the first skill of M1 ('01') and second skill of M1 ('02') unlocked
+    const [unlockedSkills, setUnlockedSkills] = useState(['01', '02']);
     const [isPlaying, setIsPlaying] = useState(false);
     const [activeGameSkillId, setActiveGameSkillId] = useState<string | null>(null);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [debugMode, setDebugMode] = useState(() => {
+        const saved = localStorage.getItem('debugMode');
+        return saved === 'true';
+    });
 
     // Flatten all skills to find the next one easily
     const allSkills = SKILLS_DATA.flatMap(m => m.skills);
@@ -39,6 +46,11 @@ function App() {
         setActiveGameSkillId(null);
     };
 
+    const handleDebugModeChange = (enabled: boolean) => {
+        setDebugMode(enabled);
+        localStorage.setItem('debugMode', enabled.toString());
+    };
+
     const selectedModuleColor = selectedSkill
         ? SKILLS_DATA.find(m => m.id === selectedSkill.moduleId)?.color || 'slate'
         : 'slate';
@@ -49,8 +61,10 @@ function App() {
         ? SKILLS_DATA.find(m => m.skills.some(s => s.id === activeGameSkillId))
         : null;
 
-    // Inversion of Control: We ask the registry "Who wants to play with this module?"
-    const ActiveGameComponent = activeModule ? getGameForModule(activeModule.id) : null;
+    // Inversion of Control: We ask the registry "Who wants to play with this skill or module?"
+    const ActiveGameComponent = activeModule && activeGameSkillId
+        ? getGameForSkill(activeGameSkillId, activeModule.id)
+        : null;
 
     return (
         <div className="h-screen bg-[#050505] text-zinc-100 font-mono flex flex-col">
@@ -60,10 +74,20 @@ function App() {
                 <ActiveGameComponent
                     difficultyLevel={allSkills.findIndex(s => s.id === activeGameSkillId) + 1}
                     onExit={handleGameEnd}
+                    debugMode={debugMode}
                 />
             )}
 
             <TopBar unlockedCount={unlockedSkills.length} totalSkills={totalSkills} />
+
+            {/* Settings Button */}
+            <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="fixed top-4 right-4 z-50 p-2 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-600 rounded-lg transition-colors shadow-lg backdrop-blur-sm"
+                title="Configurações"
+            >
+                <Settings className="text-zinc-400" size={20} />
+            </button>
 
             {/* Main Area with Dungeon Background */}
             <main className="flex-1 overflow-y-auto relative scrollbar-hide touch-scroll flex flex-col items-center pt-28 pb-20 bg-dungeon overflow-x-hidden">
@@ -72,7 +96,9 @@ function App() {
                 <div className="absolute top-0 bottom-0 w-2.5 bg-zinc-800/60 left-[50%] -translate-x-1/2 -z-0 border-x border-zinc-950/50"></div>
 
                 {SKILLS_DATA.map((module, index) => {
-                    const isModuleLocked = index > 0;
+                    // Unlock only Module 1 (index 0) and Module 2 (index 1)
+                    // Lock everything else (> 1)
+                    const isModuleLocked = index > 1;
 
                     return (
                         <ModuleSection
@@ -108,6 +134,14 @@ function App() {
                     onAction={handleGameStart}
                 />
             )}
+
+            {/* Settings Modal */}
+            <SettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                debugMode={debugMode}
+                onDebugModeChange={handleDebugModeChange}
+            />
         </div>
     );
 }
